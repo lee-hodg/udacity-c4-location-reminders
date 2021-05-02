@@ -69,7 +69,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback  {
         setupMap()
 
         binding.saveLocation.setOnClickListener{
-            if(Poi!= null) {
+            if(lat!= null && long!= null ) {
                 onLocationSelected()
             }else{
                 Toast.makeText(context,"Please choose a location.", Toast.LENGTH_LONG).show()
@@ -83,7 +83,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback  {
     private fun onLocationSelected() {
         _viewModel.latitude.value = lat
         _viewModel.longitude.value = long
-        _viewModel.selectedPOI.value = Poi
+        //_viewModel.selectedPOI.value = Poi
         _viewModel.reminderSelectedLocationStr.value = title
         _viewModel.navigationCommand.postValue(NavigationCommand.Back)
     }
@@ -105,6 +105,25 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback  {
         }
         isLocationSelected = true
     }
+
+    private fun setLongClick(map: GoogleMap) {
+        map.setOnMapLongClickListener { latLong ->
+            val poiMarker = map.addMarker(
+                MarkerOptions()
+                    .position(latLong)
+                    .title(getString(R.string.dropped_pin))
+            )
+            val zoomLevel = 15f
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLong, zoomLevel))
+            poiMarker.showInfoWindow()
+            //Poi = PointOfInterest(latLong)
+            lat = latLong.latitude
+            long = latLong.longitude
+            title = getString(R.string.dropped_pin)
+        }
+        isLocationSelected = true
+    }
+
 
     private fun setMapStyle(map: GoogleMap) {
         try {
@@ -158,6 +177,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback  {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         setPoiClick(map)
+        setLongClick(map)
         setMapStyle(map)
         enableMyLocation()
     }

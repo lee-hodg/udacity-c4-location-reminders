@@ -6,7 +6,19 @@ import com.udacity.project4.locationreminders.data.dto.Result
 //Use FakeDataSource that acts as a test double to the LocalDataSource
 class FakeDataSource(var tasks: MutableList<ReminderDTO>? = mutableListOf()) : ReminderDataSource {
 
+    // FIX: control when this fake source should return an error result
+    private var shouldReturnError = false
+
+    fun setShouldReturnError(shouldReturn: Boolean) {
+        this.shouldReturnError = shouldReturn
+    }
+
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
+
+        if (shouldReturnError) {
+            return Result.Error("No reminders to return", 404)
+        }
+
         tasks?.let { return Result.Success(it) }
         return Result.Error("No reminders to return")
     }
@@ -16,6 +28,10 @@ class FakeDataSource(var tasks: MutableList<ReminderDTO>? = mutableListOf()) : R
     }
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
+        if(shouldReturnError) {
+            return Result.Error("Error")
+        }
+
         tasks?.firstOrNull { it.id == id }?.let { return Result.Success(it) }
         return Result.Error("No reminder found")
     }

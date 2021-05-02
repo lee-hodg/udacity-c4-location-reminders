@@ -70,6 +70,8 @@ class AuthenticationFragment : Fragment() {
         activity?.let{
             val intent = Intent (it, RemindersActivity::class.java)
             it.startActivity(intent)
+            // so can't click back button to previous login screen after logging in successfully
+            it.finish()
         }
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
